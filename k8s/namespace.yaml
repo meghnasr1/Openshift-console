@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: console-system
+  labels:
+    app: readonly-console
+    security: read-only

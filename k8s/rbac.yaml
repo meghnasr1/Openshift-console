@@ -1,0 +1,89 @@
+---
+# ClusterRole with read-only permissions
+# CRITICAL: No secrets access, no write verbs
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: readonly-console-role
+  labels:
+    app: readonly-console
+rules:
+  # Core resources
+  - apiGroups: [""]
+    resources:
+      - pods
+      - services
+      - configmaps
+      - persistentvolumeclaims
+      - namespaces
+      - nodes
+      - events
+    verbs: ["get", "list", "watch"]
+
+  # Apps resources
+  - apiGroups: ["apps"]
+    resources:
+      - deployments
+      - replicasets
+      - statefulsets
+      - daemonsets
+    verbs: ["get", "list", "watch"]
+
+  # Networking resources
+  - apiGroups: ["networking.k8s.io"]
+    resources:
+      - ingresses
+      - networkpolicies
+    verbs: ["get", "list", "watch"]
+
+  # OpenShift specific resources (if available)
+  - apiGroups: ["route.openshift.io"]
+    resources:
+      - routes
+    verbs: ["get", "list", "watch"]
+
+  - apiGroups: ["image.openshift.io"]
+    resources:
+      - imagestreams
+    verbs: ["get", "list", "watch"]
+
+  - apiGroups: ["build.openshift.io"]
+    resources:
+      - builds
+      - buildconfigs
+    verbs: ["get", "list", "watch"]
+
+  - apiGroups: ["apps.openshift.io"]
+    resources:
+      - deploymentconfigs
+    verbs: ["get", "list", "watch"]
+
+  # Monitoring (Prometheus)
+  - apiGroups: ["monitoring.coreos.com"]
+    resources:
+      - servicemonitors
+      - prometheusrules
+    verbs: ["get", "list", "watch"]
+
+  # EXPLICITLY NO ACCESS TO:
+  # - secrets (omitted entirely)
+  # - serviceaccounts (omitted entirely)
+  # - roles, rolebindings, clusterroles, clusterrolebindings (RBAC escalation prevention)
+  # - NO write verbs (create, update, patch, delete, deletecollection)
+
+---
+# ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: readonly-console-binding
+  labels:
+    app: readonly-console
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: readonly-console-role
+subjects:
+  - kind: ServiceAccount
+    name: readonly-console-sa
+    namespace: console-system
