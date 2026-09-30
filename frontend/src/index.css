@@ -1,0 +1,13 @@
+/* PatternFly base (includes tokens used by components) */
+@import '@patternfly/react-core/dist/styles/base.css';
+
+html.pf-v5-theme-dark,
+html.pf-v5-theme-dark body,
+#root {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  font-family: var(--pf-v5-global--FontFamily--text);
+}
